@@ -1,14 +1,12 @@
 import React from 'react';
 
-export const Card = ([ { listofTodo } ]) => {
+export const Card = ( { listOfTodos } ) => {
     return (
         <>
-        {listofTodo.map(todo => {
+        {listOfTodos.map(todo => {
             return(
                 <ul>
-                    <li>
-                        { todo.name }
-                    </li>
+                    <li>{todo.name}</li>
                 </ul>
             )
         })}
