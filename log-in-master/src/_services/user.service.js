@@ -38,6 +38,7 @@ function getAll() {
         method: 'GET',
         headers: authHeader()
     };
+    console.log(requestOptions)
 
     return fetch(`${apiUrl}/users`, requestOptions).then(handleResponse);
 }
@@ -82,6 +83,7 @@ function _delete(id) {
 }
 
 function handleResponse(response) {
+    console.log(response)
     return response.text().then(text => {
         const data = text && JSON.parse(text);
         if (!response.ok) {
@@ -94,7 +96,6 @@ function handleResponse(response) {
             const error = (data && data.message) || response.statusText;
             return Promise.reject(error);
         }
-
         return data;
     });
 }

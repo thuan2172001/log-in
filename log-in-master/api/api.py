@@ -20,6 +20,7 @@ app.config['CORS_RESOURCES'] = {r"/api/*": {"origins": "*"}}
 mysql = MySQL(app)
 userController = UserController(mysql)
 cors = CORS(app)
+
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -48,16 +49,18 @@ def token_required(f):
 def show(current_user):
     print(current_user.get_dict())
     return ""    
-@app.route('/users', methods = ['GET'])
+
+
+@app.route('/api/users', methods = ['GET'])
 @token_required
 def get_all_users(current_user):
 
     if not current_user.admin:
         return jsonify({"message" : "You don't have permission for this action!"})
-
     users = userController.get_all()
     print(users)
     return jsonify({"users" : users})
+
 
 @app.route('/api/users/register', methods=['POST'])
 def create():
@@ -68,6 +71,7 @@ def create():
     userController.add(public_id = str(uuid.uuid4()), username = data['username'], password = hashed_pass, admin = False)   
     return jsonify({'message' : 'Create successfully!'})
 
+
 @app.route('/api/user/<public_id>/promote', methods=['PUT'])
 @token_required
 def promote(current_user, public_id):
@@ -77,6 +81,8 @@ def promote(current_user, public_id):
     if userController.promote_user(public_id):
         return jsonify({"message" : "Promote user successfully"})
     return jsonify({"message" : "Not found user!"})
+
+
 @app.route('/api/user/<public_id>/demote', methods=['PUT'])
 @token_required
 def demote(current_user, public_id):
@@ -86,6 +92,8 @@ def demote(current_user, public_id):
     if userController.demote_user(public_id):
         return jsonify({"message" : "Demote user successfully"})
     return jsonify({"message" : "Not found user!"})
+
+
 @app.route('/api/users/<public_id>', methods=['DELETE'])
 @token_required
 def delete(current_user, public_id):
@@ -95,6 +103,8 @@ def delete(current_user, public_id):
     if userController.delete_user(public_id):
         return jsonify({"message" : "Delete user successfully"})
     return jsonify({"message" : "Not found user!"})
+
+
 @app.route('/api/users/<public_id>', methods=['GET'])
 @token_required
 def get_user(current_user, public_id):
@@ -106,6 +116,7 @@ def get_user(current_user, public_id):
     if user:
         return jsonify(user.get_dict())
     return jsonify({"message" : "Not found user!"})
+
 
 @app.route('/api/users/authenticate', methods=['POST'])
 def login():
@@ -124,6 +135,7 @@ def login():
                 return jsonify({"token" : token})
 
     return make_response('Could not verify', 401)
+
 
 @app.route("/")
 @cross_origin()
