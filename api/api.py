@@ -21,6 +21,7 @@ def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = None
+        print(request.headers)
         if "x-access-token" in request.headers:
             token = request.headers['x-access-token']
         
@@ -47,15 +48,15 @@ def show(current_user):
 @app.route('/api/users', methods = ['GET'])
 @token_required
 def get_all_users(current_user):
-
+    '''
     if not current_user.admin:
         return jsonify({"message" : "You don't have permission for this action!"})
-
+    '''
     users = userController.get_all()
     print(users)
     return jsonify({"users" : users})
 
-@app.route('/api/users', methods=['POST'])
+@app.route('/api/register', methods=['POST'])
 def create():
     data = request.get_json()
     hashed_pass = generate_password_hash(data['password'], method='sha256')
@@ -103,7 +104,7 @@ def get_user(current_user, public_id):
         return jsonify(user)
     return jsonify({"message" : "Not found user!"})
 
-@app.route('/api/login', methods=['GET'])
+@app.route('/api/authentication', methods=['POST'])
 def login():
     data = request.get_json()
     username = data['username']
@@ -118,8 +119,8 @@ def login():
             if check_password_hash(user.password, password):
                 token = jwt.encode({'public_id' : user.public_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
                 return jsonify({"token" : token})
-
-    return make_response('Could not verify', 401)
+            return jsonify({"message" : "Password not matched"})
+    return jsonify({"message" : "Can't verify"})
 
 
 if __name__ == "__main__":
